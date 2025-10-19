@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <span class="logo-icon">🎯</span>
+            <span>Habit Tracker</span>
+        </div>
+        <div class="user-info">
+            <span class="notification-icon">🔔</span>
+            <div class="user-avatar">TĐ</div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="menu-item active" onclick="showSection('habits')">
+                <span class="menu-icon">🎯</span>
+                <span>Thói quen</span>
+            </div>
+            <div class="menu-item" onclick="showSection('groups')">
+                <span class="menu-icon">👥</span>
+                <span>Nhóm</span>
+            </div>
+            <div class="menu-item" onclick="showSection('ranking')">
+                <span class="menu-icon">🏆</span>
+                <span>Bảng xếp hạng</span>
+            </div>
+            <div class="menu-item" onclick="showSection('classes')">
+                <span class="menu-icon">📚</span>
+                <span>Lớp học</span>
+            </div>
+
+            <div class="section-title">
+                <span>NHÓM</span>
+                <span class="add-btn">+</span>
+            </div>
+            <div class="habit-item">
+                <span class="habit-dot"></span>
+                <span>30DK22N21</span>
+            </div>
+
+            <div class="section-title">
+                <span>LỚP HỌC</span>
+                <span class="add-btn">+</span>
+            </div>
+            <div class="habit-item">
+                <span class="habit-dot"></span>
+                <span>30 Ngày X3 Năng Suất</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Streak Card -->
+            <div class="streak-card">
+                <div class="streak-number">
+                    🔥 <span id="streakDays">0</span> ngày
+                </div>
+                <div class="streak-label">Chuỗi hiện tại</div>
+                <div class="quote">
+                    "Chúng ta là những gì chúng ta lặp đi lặp lại. Do đó, sự xuất sắc không phải là một hành động mà là một thói quen."
+                </div>
+                <div class="quote-author">— Aristotle</div>
+            </div>
+
+            <!-- Calendar -->
+            <div style="font-size: 12px; color: var(--gray-600); margin-bottom: 8px;">
+                Lịch sử 7 ngày
+            </div>
+            <div class="calendar" id="calendar"></div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('practice')">Rèn luyện</div>
+                <div class="tab" onclick="showTab('history')">Lịch sử</div>
+                <div class="tab" onclick="showTab('stats')">Thống kê</div>
+                <div class="tab" onclick="showTab('leaderboard')">Bảng xếp hạng</div>
+            </div>
+
+            <!-- Date Filters -->
+            <div class="date-filters" id="dateFilters">
+                <button class="date-btn" onclick="changeDate('yesterday')">📅 Hôm qua</button>
+                <button class="date-btn active" onclick="changeDate('today')">📅 Hôm nay</button>
+                <button class="date-btn">🔍 Sắp xếp</button>
+            </div>
+
+            <!-- Practice Tab (Habit List) -->
+            <div id="practiceContent">
+                <div class="habit-list" id="habitList"></div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="statsContent" style="display: none;">
+                <h2 style="margin-bottom: 24px;">📊 Thống kê tổng quan</h2>
+                <div class="stats-grid" id="statsGrid"></div>
+            </div>
+
+            <!-- Leaderboard Tab -->
+            <div id="leaderboardContent" style="display: none;">
+                <h2 style="margin-bottom: 24px;">🏆 Bảng xếp hạng</h2>
+                <div id="leaderboardList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Add Button -->
+    <button class="fab" onclick="showAddModal()">+</button>
+
+    <!-- Add Habit Modal -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">➕ Thêm thói quen mới</div>
+                <span class="close-btn" onclick="closeModal('addModal')">&times;</span>
+            </div>
+            <form onsubmit="addHabit(event)">
+                <div class="form-group">
+                    <label class="form-label">Tên thói quen</label>
+                    <input type="text" class="form-input" id="habitName" placeholder="VD: Đọc sách 30 phút" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Biểu tượng</label>
+                    <input type="text" class="form-input" id="habitIcon" placeholder="VD: 📚" maxlength="2">
+                </div>
+                <button type="submit" class="submit-btn">Thêm thói quen</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Predict Modal -->
+    <div class="modal" id="predictModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🔮 Dự đoán hiệu suất</div>
+                <span class="close-btn" onclick="closeModal('predictModal')">&times;</span>
+            </div>
+            
+            <div id="predictLoading" style="text-align: center; padding: 32px; display: none;">
+                <div class="spinner"></div>
+                <p style="margin-top: 16px; color: var(--gray-600);">Đang phân tích...</p>
+            </div>
+            
+            <div id="predictResult" style="text-align: center; padding: 32px; display: none;">
+                <div style="font-size: 64px; margin-bottom: 16px;">📈</div>
+                <div style="font-size: 48px; font-weight: 700; color: var(--primary); margin-bottom: 16px;">
+                    <span id="predictScore">0</span>%
+                </div>
+                <div id="predictCategory" style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--success);"></div>
+                <div id="predictRecommendation" style="color: var(--gray-600); line-height: 1.6;"></div>
+            </div>
+            
+            <div id="predictForm">
+                <div class="form-group">
+                    <label class="form-label">Động lực (1-10): <span id="motivationValue">5</span></label>
+                    <input type="range" class="form-input" id="motivation_level" min="1" max="10" value="5" 
+                           oninput="document.getElementById('motivationValue').textContent=this.value">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tự kỷ luật (1-10): <span id="disciplineValue">5</span></label>
+                    <input type="range" class="form-input" id="self_discipline" min="1" max="10" value="5"
+                           oninput="document.getElementById('disciplineValue').textContent=this.value">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Giờ học/tuần</label>
+                    <input type="number" class="form-input" id="study_hours" value="20" min="0" max="60">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Giờ ngủ/ngày</label>
+                    <input type="number" class="form-input" id="sleep_hours" value="7" min="4" max="12" step="0.5">
+                </div>
+                <button type="button" class="submit-btn" onclick="submitPrediction()">🔮 Dự đoán</button>
+            </div>
+            
+            <button class="submit-btn" onclick="closeModal('predictModal')" style="margin-top: 16px; display: none;" id="closeResultBtn">Đóng</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
